@@ -41,6 +41,7 @@ def register_shop():
         print(response.status_code)
         print(response.text)
 
+
 def user_login():
         json = {'email': 's1@bk.ru',
                 'password': '123@qwer',
@@ -48,6 +49,22 @@ def user_login():
 
         response = requests.post('http://127.0.0.1:8000/api/v1/user/login', json=json)
         print('1. Авторизация пользователя')
+        print(response.status_code)
+        print(response.text)
+
+
+def get_shops():
+        print('Shops:')
+
+        response = requests.get('http://127.0.0.1:8000/api/v1/shops')
+        print(response.status_code)
+        print(response.text)
+
+
+def get_products(filter=''):
+        print('Products:')
+
+        response = requests.get('http://127.0.0.1:8000/api/v1/products' + filter)
         print(response.status_code)
         print(response.text)
 
@@ -82,5 +99,9 @@ if __name__ == '__main__':
     # user_login()
     # register_shop()
 
-    update_price_partner()
+    #update_price_partner()
+
+    get_shops()
+    get_products()
+    get_products('?shop_id=1')
 

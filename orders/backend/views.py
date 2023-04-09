@@ -1,15 +1,18 @@
 from django.contrib.auth import authenticate
 from django.contrib.auth.password_validation import validate_password
 from django.core.validators import URLValidator
+from django.db.models import Q
 from django.http import JsonResponse
 from requests import get
 from django.core.exceptions import ValidationError
 from rest_framework.authtoken.models import Token
+from rest_framework.generics import ListAPIView
+from rest_framework.response import Response
 from rest_framework.views import APIView
 from yaml import load as load_yaml, Loader
 
 from backend.models import ProductInfo, Product, Parameter, ProductParameter, Category, Shop
-from backend.serializers import UserSerializer
+from backend.serializers import UserSerializer, ShopSerializer, ProductInfoSerializer
 
 
 class PartnerUpdate(APIView):
@@ -124,3 +127,38 @@ class LoginAccount(APIView):
             return JsonResponse({'Status': False, 'Errors': 'Failed to authorize'})
 
         return JsonResponse({'Status': False, 'Errors': 'All required arguments not provided'})
+
+
+class ShopView(ListAPIView):
+    """
+    Класс для просмотра списка магазинов
+    """
+    queryset = Shop.objects.filter(state=True)
+    serializer_class = ShopSerializer
+
+
+class ProductInfoView(APIView):
+    """
+    Класс для поиска товаров
+    """
+    def get(self, request, *args, **kwargs):
+
+        query = Q(shop__state=True)
+        shop_id = request.query_params.get('shop_id')
+        category_id = request.query_params.get('category_id')
+
+        if shop_id:
+            query = query & Q(shop_id=shop_id)
+
+        if category_id:
+            query = query & Q(product__category_id=category_id)
+
+        # фильтруем и отбрасываем дубликаты
+        queryset = ProductInfo.objects.filter(
+            query).select_related(
+            'shop', 'product__category').prefetch_related(
+            'product_parameters__parameter').distinct()
+
+        serializer = ProductInfoSerializer(queryset, many=True)
+
+        return Response(serializer.data)
