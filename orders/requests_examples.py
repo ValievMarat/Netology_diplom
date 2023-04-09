@@ -69,6 +69,47 @@ def get_products(filter=''):
         print(response.text)
 
 
+def get_categories():
+        print('Categories:')
+
+        response = requests.get('http://127.0.0.1:8000/api/v1/categories')
+        print(response.status_code)
+        print(response.text)
+
+
+def get_partner_status():
+        print('Partner status:')
+
+        # login
+        json = {'email': 'shop3@bk.ru',
+                'password': '123@qwer',
+                }
+        response = requests.post('http://127.0.0.1:8000/api/v1/user/login', json=json)
+        DATA = response.json()
+        token = DATA['Token']
+        headers = {'Authorization': f'Token {token}'}
+        response = requests.get('http://127.0.0.1:8000/api/v1/partner/state', headers=headers)
+        print(response.status_code)
+        print(response.text)
+
+
+def get_partner_orders():
+        print('Partner status:')
+
+        # login
+        json = {'email': 'shop3@bk.ru',
+                'password': '123@qwer',
+                }
+        response = requests.post('http://127.0.0.1:8000/api/v1/user/login', json=json)
+        DATA = response.json()
+        token = DATA['Token']
+
+        headers = {'Authorization': f'Token {token}'}
+        response = requests.get('http://127.0.0.1:8000/api/v1/partner/orders', headers=headers)
+        print(response.status_code)
+        print(response.text)
+
+
 def update_price_partner():
         #login
         json = {'email': 'shop3@bk.ru',
@@ -76,9 +117,6 @@ def update_price_partner():
                 }
 
         response = requests.post('http://127.0.0.1:8000/api/v1/user/login', json=json)
-        print('1. Авторизация пользователя')
-        print(response.status_code)
-        print(response.text)
         DATA = response.json()
         token = DATA['Token']
 
@@ -101,7 +139,12 @@ if __name__ == '__main__':
 
     #update_price_partner()
 
-    get_shops()
-    get_products()
-    get_products('?shop_id=1')
+    # get_shops()
+    # get_products()
+    # get_products('?shop_id=1')
+    #get_categories()
+
+    get_partner_status()
+    get_partner_orders()
+
 
