@@ -4,6 +4,7 @@ from django.core.validators import URLValidator
 from django.http import JsonResponse
 from requests import get
 from django.core.exceptions import ValidationError
+from rest_framework.authtoken.models import Token
 from rest_framework.views import APIView
 from yaml import load as load_yaml, Loader
 
@@ -91,6 +92,7 @@ class RegisterAccount(APIView):
                     # сохраняем пользователя
                     user = user_serializer.save()
                     user.set_password(request.data['password'])
+                    user.is_active = True
                     user.save()
                     # new_user_registered.send(sender=self.__class__, user_id=user.id)
                     return JsonResponse({'Status': True})
@@ -116,6 +118,6 @@ class LoginAccount(APIView):
 
                     return JsonResponse({'Status': True, 'Token': token.key})
 
-            return JsonResponse({'Status': False, 'Errors': 'Не удалось авторизовать'})
+            return JsonResponse({'Status': False, 'Errors': 'Failed to authorize'})
 
-        return JsonResponse({'Status': False, 'Errors': 'Не указаны все необходимые аргументы'})
+        return JsonResponse({'Status': False, 'Errors': 'All required arguments not provided'})
